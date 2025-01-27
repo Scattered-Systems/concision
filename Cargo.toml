@@ -18,7 +18,7 @@ scsys = { default-features = false, branch = "v0.2.3", features = ["derive"], gi
 approx = "0.5"
 itertools = "0.13"
 lazy_static = "1"
-ndarray = { default-features = false, version = "0.15" }
+ndarray = { default-features = false, version = "0.16" }
 ndarray-stats = "0.5"
 num = { default-features = false, version = "0.4" }
 paste = "1"
