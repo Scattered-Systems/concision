@@ -3,7 +3,6 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use core::fmt;
-use num::traits::Signed;
 
 /// A function helper for testing that some result is ok
 pub fn assert_ok<T, E>(res: Result<T, E>) -> T

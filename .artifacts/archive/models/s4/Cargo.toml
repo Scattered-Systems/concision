@@ -1,0 +1,71 @@
+[package]
+authors.workspace = true
+build = "build.rs"
+categories.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+name = "concision-s4"
+readme.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[features]
+default = ["std"]
+
+full = ["default", "approx", "rand", "serde"]
+
+# ********* [FF] Dependencies *********
+approx = ["dep:approx", "concision-core/approx", "ndarray/approx"]
+
+rand = ["concision-core/rand", "num/rand"]
+
+serde = ["dep:serde", "concision-core/serde", "ndarray/serde-1", "num/serde"]
+
+tracing = ["dep:tracing"]
+
+# ********* [FF] Environments *********
+alloc = ["concision-core/alloc", "num/alloc", "serde?/alloc"]
+
+blas = ["concision-core/blas", "ndarray/blas"]
+
+std = [
+    "concision-core/std",
+    "ndarray/std",
+    "num/std",
+    "serde?/std",
+    "strum/std",
+]
+
+[lib]
+bench = false
+crate-type = ["cdylib", "rlib"]
+doctest = true
+test = true
+
+[build-dependencies]
+
+[dev-dependencies]
+lazy_static.workspace = true
+
+[dependencies]
+concision-core.workspace = true
+
+ndarray.workspace = true
+num.workspace = true
+smart-default.workspace = true
+strum.workspace = true
+
+approx = { optional = true, workspace = true }
+serde = { default-features = false, optional = true, workspace = true }
+tracing = { optional = true, workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustc-args = ["--cfg", "docsrs"]
+
+[target.wasm32-unknown-unknown]
+
+[target.wasm32-wasi]

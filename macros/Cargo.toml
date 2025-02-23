@@ -1,4 +1,7 @@
 [package]
+build = "build.rs"
+name = "concision-macros"
+
 authors.workspace = true
 categories.workspace = true
 description.workspace = true
@@ -6,7 +9,6 @@ edition.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 license.workspace = true
-name = "concision-macros"
 readme.workspace = true
 repository.workspace = true
 version.workspace = true
@@ -18,11 +20,9 @@ default = [
 
 alloc = []
 
-std = []
-
-wasi = []
-
-wasm = []
+std = [
+    "alloc"
+]
 
 [lib]
 bench = false

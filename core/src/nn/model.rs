@@ -11,9 +11,9 @@ pub mod config;
 pub mod repo;
 
 pub(crate) mod prelude {
+    pub use super::Model;
     pub use super::config::*;
     pub use super::module::*;
-    pub use super::Model;
 }
 
 use crate::traits::Forward;

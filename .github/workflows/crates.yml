@@ -1,56 +1,62 @@
-name: crates
+name: crates-io
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 env:
-  BASENAME: ${{ github.event.repository.name }}
+  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
   CARGO_TERM_COLOR: always
 
 on:
-  release:
-    types: [ published ]
+  push:
+    tags: [ v*, "*-nightly" ]
   repository_dispatch:
     types: [ crates-io ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  deployments: read
+  packages: write
+
 jobs:
-  core:
-    name: Publish (core)
-    runs-on: ubuntu-latest
-    env:
-      CARGO_PACKAGE_NAME: ${{ github.event.repository.name }}-core
-    steps:
-      - uses: actions/checkout@v4
-      - name: Publish (${{ env.CARGO_PACKAGE_NAME }})
-        run: cargo publish --all-features -v -p ${{ env.CARGO_PACKAGE_NAME }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
   features:
-    name: Publish (features)
-    needs: core
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        features: [ data, derive, macros ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Publish (${{ github.event.repository.name }}-${{ matrix.features }})
-        run: cargo publish --all-features -v -p ${{ github.event.repository.name }}-${{ matrix.features }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
-  models:
-    name: Publish (models)
-    needs: features
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        features: [ kan, gnn, linear, s4, transformer ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Publish (${{ github.event.repository.name }}-${{ matrix.features }})
-        run: cargo publish --all-features -v -p ${{ github.event.repository.name }}-${{ matrix.features }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
-  publish:
-    name: Publish (${{ github.event.repository.name }})
-    needs: models
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cargo publish --all-features -v -p ${{ github.event.repository.name }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - 
+        name: rustup
+        run: |
+          rustup self update
+          rustup update
+      - 
+        name: publish (features)
+        run: |
+          cargo publish --all-features -v -p concision-math
+          cargo publish --all-features -v -p concision-core
+
+          cargo publish --all-features -v -p concision-data
+          cargo publish --all-features -v -p concision-derive
+          cargo publish --all-features -v -p concision-macros
+          cargo publish --all-features -v -p concision-kan
+          cargo publish --all-features -v -p concision-gnn
+          cargo publish --all-features -v -p concision-linear
+          cargo publish --all-features -v -p concision-s4
+          cargo publish --all-features -v -p concision-transformers
+
+          cargo publish --all-features -v -p concision
+      - 
+        name: cache
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-
+

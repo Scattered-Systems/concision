@@ -4,8 +4,8 @@
 */
 extern crate concision_core as cnc;
 
-use cnc::init::distr::LecunNormal;
 use cnc::init::InitializeExt;
+use cnc::init::distr::LecunNormal;
 use ndarray::prelude::*;
 
 #[test]

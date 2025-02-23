@@ -4,7 +4,8 @@
 */
 #![allow(unused)]
 
-pub struct ModelRepo {
+pub struct ModelLayer {
+    pub id: usize,
     pub name: String,
-    pub(crate) store: String,
+    pub position: usize,
 }

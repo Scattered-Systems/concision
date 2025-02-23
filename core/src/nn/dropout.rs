@@ -2,31 +2,6 @@
     Appellation: dropout <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#![allow(unused_imports)]
-use crate::{Eval, Predict, PredictError};
-use nd::prelude::*;
-use nd::{DataOwned, ScalarOperand};
-#[cfg(feature = "rand")]
-use ndrand::{rand_distr::Bernoulli, RandomExt};
-use num::traits::Num;
-
-#[cfg(feature = "rand")]
-pub(crate) fn _dropout<A, S, D>(array: &ArrayBase<S, D>, p: f64) -> Array<A, D>
-where
-    A: Num + ScalarOperand,
-    D: Dimension,
-    S: DataOwned<Elem = A>,
-{
-    // Create a Bernoulli distribution for dropout
-    let distribution = Bernoulli::new(p).unwrap();
-
-    // Create a mask of the same shape as the input array
-    let mask: Array<bool, D> = Array::random(array.dim(), distribution);
-    let mask = mask.mapv(|x| if x { A::zero() } else { A::one() });
-
-    // Element-wise multiplication to apply dropout
-    array * mask
-}
 
 /// [Dropout] randomly zeroizes elements with a given probability (`p`).
 pub trait DropOut {
@@ -35,7 +10,7 @@ pub trait DropOut {
     fn dropout(&self, p: f64) -> Self::Output;
 }
 
-/// The [DropoutLayer] layer is randomly zeroizes inputs with a given probability (`p`).
+/// The [Dropout] layer is randomly zeroizes inputs with a given probability (`p`).
 /// This regularization technique is often used to prevent overfitting.
 ///
 ///
@@ -51,32 +26,10 @@ pub struct Dropout {
 /*
  ************* Implementations *************
 */
-#[cfg(feature = "rand")]
-impl<A, S, D> DropOut for ArrayBase<S, D>
-where
-    A: Num + ScalarOperand,
-    D: Dimension,
-    S: DataOwned<Elem = A>,
-{
-    type Output = Array<A, D>;
-
-    fn dropout(&self, p: f64) -> Self::Output {
-        _dropout(self, p)
-    }
-}
 
 impl Dropout {
     pub fn new(p: f64) -> Self {
         Self { p }
-    }
-    #[cfg(feature = "rand")]
-    pub fn apply<A, S, D>(&self, input: &ArrayBase<S, D>) -> Array<A, D>
-    where
-        A: Num + ScalarOperand,
-        D: Dimension,
-        S: DataOwned<Elem = A>,
-    {
-        _dropout(input, self.p)
     }
 
     pub fn scale(&self) -> f64 {
@@ -91,43 +44,63 @@ impl Default for Dropout {
 }
 
 #[cfg(feature = "rand")]
-impl<A, S, D> Eval<ArrayBase<S, D>> for Dropout
-where
-    A: Num + ScalarOperand,
-    D: Dimension,
-    S: DataOwned<Elem = A>,
-{
-    type Output = Array<A, D>;
+mod impls {
+    use super::*;
 
-    fn eval(&self, input: ArrayBase<S, D>) -> Self::Output {
-        input.dropout(self.p)
+    use crate::Forward;
+    use ndarray::{Array, ArrayBase, DataOwned, Dimension, ScalarOperand};
+    use num::traits::Num;
+
+    pub(crate) fn _dropout<S, A, D>(array: &ArrayBase<S, D>, p: f64) -> Array<A, D>
+    where
+        A: Num + ScalarOperand,
+        D: Dimension,
+        S: DataOwned<Elem = A>,
+    {
+        use crate::init::InitializeExt;
+        // Create a mask of the same shape as the input array
+        let mask: ndarray::Array<bool, D> =
+            ndarray::Array::bernoulli(array.dim(), p).expect("Failed to create mask");
+        let mask = mask.mapv(|x| if x { A::zero() } else { A::one() });
+
+        // Element-wise multiplication to apply dropout
+        array.to_owned() * mask
     }
-}
 
-#[cfg(feature = "rand")]
-impl<'a, A, S, D> Eval<&'a ArrayBase<S, D>> for Dropout
-where
-    A: Num + ScalarOperand,
-    D: Dimension,
-    S: DataOwned<Elem = A>,
-{
-    type Output = Array<A, D>;
+    impl<A, S, D> DropOut for ArrayBase<S, D>
+    where
+        A: Num + ScalarOperand,
+        D: Dimension,
+        S: DataOwned<Elem = A>,
+    {
+        type Output = Array<A, D>;
 
-    fn eval(&self, input: &'a ArrayBase<S, D>) -> Self::Output {
-        input.dropout(self.p)
+        fn dropout(&self, p: f64) -> Self::Output {
+            _dropout(self, p)
+        }
     }
-}
 
-#[cfg(feature = "rand")]
-impl<A, S, D> Predict<ArrayBase<S, D>> for Dropout
-where
-    A: Num + ScalarOperand,
-    D: Dimension,
-    S: DataOwned<Elem = A>,
-{
-    type Output = Array<A, D>;
+    impl Dropout {
+        pub fn apply<A, S, D>(&self, input: &ArrayBase<S, D>) -> Array<A, D>
+        where
+            A: Num + ScalarOperand,
+            D: Dimension,
+            S: DataOwned<Elem = A>,
+        {
+            _dropout(input, self.p)
+        }
+    }
 
-    fn predict(&self, input: &ArrayBase<S, D>) -> Result<Self::Output, PredictError> {
-        Ok(input.dropout(self.p))
+    impl<A, S, D> Forward<ArrayBase<S, D>> for Dropout
+    where
+        A: Num + ScalarOperand,
+        D: Dimension,
+        S: DataOwned<Elem = A>,
+    {
+        type Output = Array<A, D>;
+
+        fn forward(&self, input: &ArrayBase<S, D>) -> Self::Output {
+            input.dropout(self.p)
+        }
     }
 }

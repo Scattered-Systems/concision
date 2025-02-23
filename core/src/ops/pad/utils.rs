@@ -3,8 +3,8 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{PadAction, PadError, PadMode};
-use crate::traits::ArrayLike;
-use nd::{Array, ArrayBase, AxisDescription, Data, DataOwned, Dimension, Slice};
+use crate::ArrayLike;
+use ndarray::{Array, ArrayBase, AxisDescription, Data, DataOwned, Dimension, Slice};
 use num::{FromPrimitive, Num};
 
 fn reader(nb_dim: usize, pad: &[[usize; 2]]) -> Result<Vec<[usize; 2]>, PadError> {
@@ -14,7 +14,7 @@ fn reader(nb_dim: usize, pad: &[[usize; 2]]) -> Result<Vec<[usize; 2]>, PadError
     } else if pad.len() == nb_dim {
         Ok(pad.to_vec())
     } else {
-        Err(PadError::InconsistentDimensions)
+        Err(PadError::InconsistentDimensions(String::new()))
     }
 }
 
@@ -61,7 +61,7 @@ where
         })
         .assign(data);
 
-    match mode.action() {
+    match mode.into_pad_action() {
         PadAction::StopAfterCopy => {
             // Do nothing
             return Ok(());

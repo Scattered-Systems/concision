@@ -2,25 +2,26 @@
    Appellation: utils <mod>
    Contrib: FL03 <jo3mccain@icloud.com>
 */
-use ndarray::*;
-use ndrand::RandomExt;
-use num::complex::{Complex, ComplexDistribution};
+use super::Initialize;
+use ndarray::{Array, ArrayBase, DataOwned, Dimension, IntoDimension, RawData, ShapeBuilder};
 use num::Num;
-use rand::distributions::uniform::{SampleUniform, Uniform};
-use rand::rngs::StdRng;
-use rand::{rngs, SeedableRng};
-use rand_distr::{Distribution, StandardNormal};
+use num::complex::{Complex, ComplexDistribution};
+use rand::{SeedableRng, rngs};
+use rand_distr::{
+    Distribution, StandardNormal,
+    uniform::{SampleUniform, Uniform},
+};
 
 /// Generate a random array of complex numbers with real and imaginary parts in the range [0, 1)
 pub fn randc<A, S, D>(shape: impl IntoDimension<Dim = D>) -> ArrayBase<S, D>
 where
     A: Clone + Num,
     D: Dimension,
-    S: DataOwned<Elem = Complex<A>>,
-    ComplexDistribution<A, A>: Distribution<Complex<A>>,
+    S: RawData + DataOwned<Elem = Complex<A>>,
+    ComplexDistribution<A, A>: Distribution<S::Elem>,
 {
     let distr = ComplexDistribution::<A, A>::new(A::one(), A::one());
-    ArrayBase::random(shape, distr)
+    ArrayBase::rand(shape, distr)
 }
 
 /// Given a shape, generate a random array using the StandardNormal distribution
@@ -31,7 +32,7 @@ where
     Sh: ShapeBuilder<Dim = D>,
     StandardNormal: Distribution<S::Elem>,
 {
-    ArrayBase::random(shape, StandardNormal)
+    ArrayBase::rand(shape, StandardNormal)
 }
 
 pub fn stdnorm_from_seed<S, D, Sh>(shape: Sh, seed: u64) -> ArrayBase<S, D>
@@ -41,7 +42,11 @@ where
     Sh: ShapeBuilder<Dim = D>,
     StandardNormal: Distribution<S::Elem>,
 {
-    ArrayBase::random_using(shape, StandardNormal, &mut StdRng::seed_from_u64(seed))
+    ArrayBase::rand_with(
+        shape,
+        StandardNormal,
+        &mut rngs::StdRng::seed_from_u64(seed),
+    )
 }
 /// Creates a random array from a uniform distribution using a given key
 pub fn uniform_from_seed<T, D>(
@@ -49,14 +54,11 @@ pub fn uniform_from_seed<T, D>(
     start: T,
     stop: T,
     shape: impl IntoDimension<Dim = D>,
-) -> Array<T, D>
+) -> super::UniformResult<Array<T, D>>
 where
     D: Dimension,
     T: SampleUniform,
 {
-    Array::random_using(
-        shape,
-        Uniform::new(start, stop),
-        &mut rngs::StdRng::seed_from_u64(key),
-    )
+    Uniform::new(start, stop)
+        .map(|distr| ArrayBase::rand_with(shape, &distr, &mut rngs::StdRng::seed_from_u64(key)))
 }

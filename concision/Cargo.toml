@@ -12,260 +12,92 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = [
-    "data",
-    "std",
-]
-
+default = [ "std" ]
 full = [
-    "default",
     "approx",
+    "default",
     "derive",
-    "models",
+    "macros",
     "rand",
     "serde",
     "tracing",
 ]
 
-data = [
-    "dep:concision-data"
-]
+derive = [ "dep:concision-derive" ]
 
-derive = [
-    "dep:concision-derive",
-    "macros",
-]
-
-macros = [
-    "dep:concision-macros"
-]
-
-# ********* [FF] Models(s) *********
-models = [
-    "gnn",
-    "kan",
-    "linear",
-    "s4",
-    "transformer",
-]
-
-gnn = [
-    "dep:concision-gnn",
-]
-
-kan = [
-    "dep:concision-kan",
-]
-
-linear = [
-    "dep:concision-linear",
-]
-
-s4 = [
-    "dep:concision-s4",
-]
-
-transformer = [
-    "dep:concision-transformer",
-]
-
+macros = [ "dep:concision-macros" ]
 
 # ********* [FF] Dependencies *********
-alloc = [
-    "concision-core/alloc",
-    "concision-data?/alloc",
-    "concision-gnn?/alloc",
-    "concision-kan?/alloc",
-    "concision-linear?/alloc",
-    "concision-s4?/alloc",
-    "concision-transformer?/alloc",
-]
 
 approx = [
     "concision-core/approx",
-    "concision-data?/approx",
-    "concision-gnn?/approx",
-    "concision-kan?/approx",
-    "concision-linear?/approx",
-    "concision-s4?/approx",
-    "concision-transformer?/approx",
 ]
 
 rand = [
     "concision-core/rand",
-    "concision-data?/rand",
-    "concision-gnn?/rand",
-    "concision-kan?/rand",
-    "concision-linear?/rand",
-    "concision-s4?/rand",
-    "concision-transformer?/rand",
 ]
+
+rayon = ["concision-core/rayon"]
 
 serde = [
     "concision-core/serde",
-    "concision-data?/serde",
-    "concision-gnn?/serde",
-    "concision-kan?/serde",
-    "concision-linear?/serde",
-    "concision-s4?/serde",
-    "concision-transformer?/serde",
 ]
 
 tracing = [
     "concision-core/tracing",
-    "concision-data?/tracing",
-    "concision-gnn?/tracing",
-    "concision-kan?/tracing",
-    "concision-linear?/tracing",
-    "concision-s4?/tracing",
-    "concision-transformer?/tracing",
 ]
 
 # ********* [FF] Environment(s) *********
 
 std = [
     "concision-core/std",
-    "concision-data?/std",
-    "concision-gnn?/std",
-    "concision-kan?/std",
-    "concision-linear?/std",
-    "concision-s4?/std",
-    "concision-transformer?/std",
-]
-
-wasm = [
-    "concision-core/wasm",
-    "concision-data?/wasm",
-    "concision-gnn?/wasm",
-    "concision-kan?/wasm",
-    "concision-linear?/wasm",
-    "concision-transformer?/wasm",
-]
-
-wasi = [    
-    "concision-core/wasi",
-    "concision-data?/wasi",
-    "concision-gnn?/wasi",
-    "concision-kan?/wasi",
-    "concision-linear?/wasi",
-    "concision-s4?/wasi",
-    "concision-transformer?/wasi",
 ]
 
 # ********* [FF] Blas *********
 blas = [
     "concision-core/blas",
-    "concision-data?/blas",
-    "concision-gnn?/blas",
-    "concision-kan?/blas",
-    "concision-linear?/blas",
-    "concision-s4?/blas",
-    "concision-transformer?/blas",
 ]
 
-intel-mkl-system = [
-    "blas",
-]
+intel-mkl-system = [ "blas" ]
 
-intel-mkl-static = [
-    "blas",
-]
+intel-mkl-static = [ "blas" ]
 
-netlib-system = [
-    "blas",
-]
+netlib-system = [ "blas" ]
 
-netlib-static = [
-    "blas",
-]
+netlib-static = [ "blas" ]
 
-openblas-system = [
-    "blas",
-]
+openblas-system = [ "blas" ]
 
-openblas-static = [
-    "blas",
-]
+openblas-static = [ "blas" ]
 
 [lib]
 bench = true
-crate-type = ["lib"]
+crate-type = [ "cdylib", "rlib" ]
 doctest = false
 test = true
 
-[[example]]
-name = "linear"
-required-features = ["linear", "rand", "serde", "tracing"]
 
-[[example]]
-name = "transformer"
-required-features = ["transformer", "rand", "serde", "tracing"]
-
-[build-dependencies]
-
-[dependencies.concision-core]
-path = "../core"
-version = "0.1.15"
-
-[dependencies.concision-data]
-optional = true
-path = "../data"
-version = "0.1.15"
-
-[dependencies.concision-derive]
-optional = true
-path = "../derive"
-version = "0.1.15"
-
-[dependencies.concision-macros]
-optional = true
-path = "../macros"
-version = "0.1.15"
-
-# *************** Models ***************
-
-[dependencies.concision-gnn]
-optional = true
-path = "../models/gnn"
-version = "0.1.15"
-
-[dependencies.concision-kan]
-optional = true
-path = "../models/kan"
-version = "0.1.15"
-
-[dependencies.concision-linear]
-optional = true
-path = "../models/linear"
-version = "0.1.15"
-
-[dependencies.concision-s4]
-optional = true
-path = "../models/s4"
-version = "0.1.15"
-
-[dependencies.concision-transformer]
-optional = true
-path = "../models/transformers"
-version = "0.1.15"
+[dependencies]
+concision-core = { path = "../core", version = "0.1.16" }
+concision-derive = { optional = true, path = "../derive", version = "0.1.16" }
+concision-macros = { optional = true, path = "../macros", version = "0.1.16" }
 
 [dev-dependencies]
-anyhow = "1"
-approx.workspace = true
-lazy_static.workspace = true
-ndarray.workspace = true
-num = { features = ["rand", "serde"], version = "0.4" }
-tracing = "0.1"
-tracing-subscriber = "0.3"
+anyhow = { workspace = true }
+approx = { workspace = true }
+lazy_static = { workspace = true }
+ndarray = { workspace = true }
+num = { features = [ "rand", "serde" ], workspace = true }
+tracing = { workspace = true }
+tracing-subscriber  = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true
-rustc-args = ["--cfg", "docsrs"]
+rustc-args = [ "--cfg", "docsrs" ]
 
 [package.metadata.release]
 no-dev-version = true
 tag-name = "{{version}}"
 
-[target.wasm32-unknown-unknown]
-
-[target.wasm32-wasi]
+[[example]]
+name = "basic"

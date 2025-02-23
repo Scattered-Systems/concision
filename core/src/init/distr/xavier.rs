@@ -73,34 +73,24 @@ where
 
 /// Uniform Xavier initializers use a uniform distribution to initialize the weights of a neural network
 /// within a given range.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct XavierUniform<X>
 where
-    X: SampleUniform,
+    X: Float + SampleUniform,
 {
-    boundary: X,
+    distr: Uniform<X>,
 }
 
 impl<X> XavierUniform<X>
 where
     X: Float + SampleUniform,
 {
-    pub fn new(inputs: usize, outputs: usize) -> Self {
-        Self {
-            boundary: boundary(inputs, outputs),
-        }
+    pub fn new(inputs: usize, outputs: usize) -> Result<Uniform<X>, rand_distr::uniform::Error> {
+        let limit = boundary::<X>(inputs, outputs);
+        Uniform::new(-limit, limit)
     }
 
-    pub fn boundary(&self) -> X {
-        self.boundary
-    }
-
-    pub fn distr(&self) -> Uniform<X>
-    where
-        X: Float,
-    {
-        let bnd = self.boundary();
-        Uniform::new(-bnd, bnd)
+    pub const fn distr(&self) -> &Uniform<X> {
+        &self.distr
     }
 }
 

@@ -4,48 +4,52 @@ updates:
   - package-ecosystem: cargo
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: cargo
     directory: /concision
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: cargo
     directory: /core
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: cargo
     directory: /data
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: cargo
     directory: /derive
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: cargo
     directory: /macros
     schedule:
-      interval: weekly
+      interval: monthly
+  - package-ecosystem: cargo
+    directory: /math
+    schedule:
+      interval: monthly
   - package-ecosystem: cargo
     directory: /models/gnn
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: cargo
     directory: /models/kan
     schedule:
-      interval: weekly
-  - directory: /models/linear
-    package-ecosystem: cargo
+      interval: monthly
+  - package-ecosystem: cargo
+    directory: /models/linear
     schedule:
-      interval: weekly
-  - directory: /models/s4
-    package-ecosystem: cargo
+      interval: monthly
+  - package-ecosystem: cargo
+    directory: /models/s4
     schedule:
-      interval: weekly
-  - directory: /models/transformer
-    package-ecosystem: cargo
+      interval: monthly
+  - package-ecosystem: cargo
+    directory: /models/transformer
     schedule:
-      interval: weekly
+      interval: monthly

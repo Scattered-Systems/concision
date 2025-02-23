@@ -1,90 +1,66 @@
 name: rust
 
-concurrency: 
+concurrency:   
   cancel-in-progress: false
-  group: ${{ github.event.repository.name }}-rust
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 env:
   CARGO_TERM_COLOR: always
-  CRATE_BASENAME: ${{ github.event.repository.name }}
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, master, ]
+    types: [ opened, synchronize, reopened ]
   push:
-    branches: [ main ]
-    tags: [ v*.*.* ]
-  release:
-    types: [ created ]
+    tags: [ v*, "*-nightly" ]
   repository_dispatch:
     types: [ rust ]
-  schedule:
-    - cron: "30 21 * * 0" # Every Sunday at 9:30pm UTC
   workflow_dispatch:
 
 permissions: write-all
 
 jobs:
-  build:
-    name: Build
+  workspace:
     strategy:
       matrix:
-        platform: [ ubuntu-latest ]
-        toolchain: [ stable, nightly ]
-    runs-on: ${{ matrix.platform }}
+        target: [ x86_64-unknown-linux-gnu, ]
+        toolchain: [ nightly, ]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: setup (langspace)
+      # - 
+      #   name: rustup
+      #   uses: actions-rust-lang/setup-rust-toolchain@v1
+      #   with:
+      #     cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      #     cache-workspaces: true
+      #     target: ${{ matrix.target }}
+      -
+        name: rustup
         run: |
-          rustup default ${{ matrix.toolchain }}
+          rustup self update
           rustup update
-      - name: Build (release)
-        run: cargo build -r -v --workspace
-      - name: Cache build
+          rustup default ${{ matrix.toolchain }}
+      - 
+        name: build
+        run: cargo build -r -v --features full --target ${{ matrix.target }} --workspace
+      - 
+        name: test
+        run: cargo test -r -v --features full --target ${{ matrix.target }} --workspace
+      - 
+        name: bench
+        if: matrix.toolchain == 'nightly'
+        run: cargo bench -F full -v --workspace
+      - 
+        name: cache
         uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target/release
-
-  bench:
-    name: Benchmark
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: rustup
-        run: |
-          rustup default nightly
-          rustup update
-      - run: cargo bench --all -v
-    
-  test:
-    name: Test
-    strategy:
-      matrix:
-        toolchain: [ stable, nightly ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: rustup default ${{ matrix.toolchain }} && rustup update
-      - run: cargo test --features full -v --workspace
-
-  blas:
-    continue-on-error: true
-    env:
-      PACKAGE_NAME: ${{ github.event.repository.name }}-${{ matrix.crate }}
-    name: Test (blas)
-    strategy:
-      matrix:
-        crate: [ core, data, gnn, linear ]
-        toolchain: [ stable ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: rustup default ${{ matrix.toolchain }} && rustup update
-      - name: test
-        run: |
-          cargo clean
-          cargo test --features blas -v -p ${{ env.PACKAGE_NAME }}
+            target
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-

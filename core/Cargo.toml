@@ -1,31 +1,30 @@
 [package]
-authors.workspace = true
 build = "build.rs"
+name = "concision-core"
+
+authors.workspace = true
 categories.workspace = true
 description.workspace = true
 edition.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 license.workspace = true
-name = "concision-core"
 readme.workspace = true
 repository.workspace = true
 version.workspace = true
 
 [features]
-default = [
-    "std",
-]
-
+default = [ "std" ]
 full = [
-    "default",
     "approx",
+    "default",
+    "json",
     "rand",
     "serde",
     "tracing",
 ]
 
-# [FF] Dependencies
+# ********* [FF] Dependencies *********
 alloc = [
     "num/alloc",
     "rand?/alloc",
@@ -35,138 +34,137 @@ alloc = [
 ]
 
 approx = [
+    "concision-math/approx",
     "dep:approx",
-    "ndarray/approx-0_5",
+    "ndarray/approx",
 ]
 
 blas = [
+    "concision-math/blas",
     "ndarray/blas",
 ]
 
-rand = [
-    "dep:rand",
-    "dep:rand_distr",
-    "dep:ndarray-rand",
-    "rand-ext",
+json = [
+    "dep:serde_json",
+    "serde"
 ]
 
-rand-ext = [
+rand = [
+    "concision-math/rand",
+    "dep:rand",
+    "dep:rand_distr",
     "num/rand",
+    "rng",
+]
+
+rayon = [
+    "dep:rayon",
+    "concision-math/rayon",
+    "ndarray/rayon",
+]
+
+rng = [
+    "dep:getrandom",
+    "rand?/small_rng",
+    "rand?/thread_rng",
     "uuid/rng",
     "uuid/v4",
 ]
 
-std-rng = [
-    "rand?/std",
-    "rand?/std_rng",
-]
-
 serde = [
-    "serde-1",
-    "ndarray/serde-1",
+    "concision-math/serde",
+    "dep:serde",
+    "dep:serde_derive",
+    "ndarray/serde",
     "num/serde",
-    "rand?/serde1",
-    "rand_distr?/serde1",
+    "rand?/serde",
+    "rand_distr?/serde",
     "scsys/serde",
-    "uuid/serde"
-]
-
-serde-1 = [
-    "dep:serde"
+    "serde?/derive",
+    "uuid/serde",
 ]
 
 tracing = [
-    "dep:tracing"
+    "concision-math/tracing",
+    "dep:tracing",
 ]
 
 # ********* [FF] Environments *********
 std = [
     "alloc",
-    "std-rng",
+    "concision-math/std",
     "ndarray/std",
     "num/std",
+    "rand?/std",
+    "rand?/std_rng",
     "scsys/std",
     "serde/std",
     "strum/std",
-    "uuid/std"
+    "thiserror/std",
+    "uuid/std",
 ]
-
-wasm = [
-    "getrandom/js",
-]
-
-wasi = []
 
 [lib]
 bench = false
-crate-type = ["lib"]
+crate-type = [
+    "cdylib",
+    "rlib",
+]
 doctest = false
 test = true
 
 
 
+[dev-dependencies]
+lazy_static.workspace = true
+
+[dependencies]
+concision-math = { default-features = false, path = "../math", version = "0.1.16" }
+
+
+ndarray = { workspace = true }
+num = { workspace = true }
+paste = { workspace = true }
+scsys = { workspace = true }
+smart-default = { workspace = true }
+strum = { workspace = true }
+thiserror = { workspace = true }
+# Optional dependencies
+approx = { optional = true, workspace = true }
+getrandom = { default-features = false, optional = true, version = "0.3" }
+rand = { default-features = false, optional = true, workspace = true }
+rand_distr = { default-features = false, optional = true, workspace = true }
+rayon = { optional = true, workspace = true }
+serde = { default-features = false, optional = true, workspace = true }
+serde_derive = { optional = true, workspace = true }
+serde_json = { optional = true, workspace = true }
+tracing = { optional = true, workspace = true }
+uuid = { default-features = false, features = [ "v5", "v8" ], workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustc-args = [
+    "--cfg",
+    "docsrs",
+]
+
 [[test]]
-name = "fft"
-required-features = ["approx"]
+name = "default"
+
+[[test]]
+name = "dropout"
+required-features = ["rand", "std"]
 
 [[test]]
 name = "init"
 required-features = ["rand", "std"]
 
 [[test]]
-name = "nn"
+name = "traits"
+required-features = ["std"]
 
-[build-dependencies]
 
-[dev-dependencies]
-lazy_static.workspace = true
+[[test]]
+name = "utils"
+required-features = ["std"]
 
-[dependencies]
-ndarray.workspace = true
-num.workspace = true
-paste.workspace = true
-scsys.workspace = true
-smart-default.workspace = true
-strum.workspace = true
-
-[dependencies.approx]
-optional = true
-version = "0.5"
-
-[dependencies.ndarray-rand]
-optional = true
-version = "0.14"
-
-[dependencies.rand]
-default-features = false
-optional = true
-version = "0.8"
-
-[dependencies.rand_distr]
-default-features = false
-optional = true
-version = "0.4"
-
-[dependencies.serde]
-default-features = false
-features = ["derive"]
-optional = true
-version = "1"
-
-[dependencies.tracing]
-optional = true
-version = "0.1"
-
-[dependencies.uuid]
-default-features = false
-features = ["v5", "v8"]
-version = "1"
-
-[package.metadata.docs.rs]
-all-features = true
-rustc-args = ["--cfg", "docsrs"]
-
-[target.wasm32-unknown-unknown.dependencies]
-getrandom = "0.2"
-
-[target.wasm32-wasi]

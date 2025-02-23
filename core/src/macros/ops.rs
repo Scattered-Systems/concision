@@ -4,19 +4,9 @@
 */
 
 macro_rules! unary {
-    ($($name:ident::$call:ident),* $(,)?) => {
+    ($($name:ident::$call:ident($($rest:tt)*)),* $(,)?) => {
         $(
-            unary!(@impl $name::$call(self));
-        )*
-    };
-    ($($name:ident::$call:ident(self)),* $(,)?) => {
-        $(
-            unary!(@impl $name::$call(self));
-        )*
-    };
-    ($($name:ident::$call:ident(&self)),* $(,)?) => {
-        $(
-            unary!(@impl $name::$call(&self));
+            unary!(@impl $name::$call($($rest)*));
         )*
     };
     (@impl $name:ident::$call:ident(self)) => {

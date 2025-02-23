@@ -5,12 +5,11 @@
 extern crate concision_core as cnc;
 
 use cnc::linarr;
-use ndarray::prelude::*;
-use num::Complex;
+use ndarray::{Array2, Ix2, array};
 
 #[test]
 fn test_affine() {
-    use cnc::traits::Affine;
+    use cnc::Affine;
     let x = array![[0.0, 1.0], [2.0, 3.0]];
 
     let y = x.affine(4.0, -2.0);
@@ -19,7 +18,7 @@ fn test_affine() {
 
 #[test]
 fn test_masked_fill() {
-    use cnc::traits::MaskFill;
+    use cnc::MaskFill;
     let shape = (2, 2);
     let mask = array![[true, false], [false, true]];
     let arr = linarr::<f64, Ix2>(shape).unwrap();
@@ -28,16 +27,8 @@ fn test_masked_fill() {
 }
 
 #[test]
-fn test_as_complex() {
-    use cnc::traits::AsComplex;
-    let x = 1.0;
-    let y = x.as_re();
-    assert_eq!(y, Complex::new(1.0, 0.0));
-}
-
-#[test]
 fn test_matrix_power() {
-    use cnc::traits::Matpow;
+    use cnc::Matpow;
     let x = array![[1.0, 2.0], [3.0, 4.0]];
     assert_eq!(x.pow(0), Array2::<f64>::eye(2));
     assert_eq!(x.pow(1), x);
@@ -46,7 +37,7 @@ fn test_matrix_power() {
 
 #[test]
 fn test_unsqueeze() {
-    use cnc::traits::Unsqueeze;
+    use cnc::Unsqueeze;
     let arr = array![1, 2, 3, 4];
     let a = arr.clone().unsqueeze(0);
     assert_eq!(a.dim(), (1, 4));

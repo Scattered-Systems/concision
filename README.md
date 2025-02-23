@@ -1,4 +1,6 @@
-# Concision
+# concision (cnc)
+
+[![license](https://img.shields.io/crates/l/concision.svg)](https://choosealicense.com/licenses/apache-2.0/)
 [![crates.io](https://img.shields.io/crates/v/concision.svg)](https://crates.io/crates/concision)
 [![docs.rs](https://docs.rs/concision/badge.svg)](https://docs.rs/concision)
 
@@ -7,12 +9,11 @@
 
 ***
 
-### _The library is currently in the early stages of development and is not yet ready for production use._
+_**Warning: The library is currently in the early stages of development and is not yet ready for production use.**_
 
 Concision is designed to be a complete toolkit for building machine learning models in Rust.
 
-Concision is a machine learning library for building powerful models in Rust prioritizing ease-of-use, efficiency, and flexability. The library is built to make use of the 
-both the upcoming `autodiff` experimental feature and increased support for generics in the 2024 edition of Rust.
+Concision is a machine learning library for building powerful models in Rust prioritizing ease-of-use, efficiency, and flexability. The library is built to make use of the both the upcoming `autodiff` experimental feature and increased support for generics in the 2024 edition of Rust.
 
 ## Getting Started
 
@@ -27,6 +28,12 @@ cd concision
 
 ```bash
 cargo build --features full -r --workspace
+```
+
+### Testing the crate
+
+```bash
+cargo test --workspace -F full
 ```
 
 ## Usage

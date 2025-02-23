@@ -1,0 +1,70 @@
+[package]
+build = "build.rs"
+name = "concision-math"
+
+authors.workspace = true
+categories.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[features]
+default = [ "std" ]
+
+full = [ "approx", "default", "serde", "tracing" ]
+
+# ********* [FF] Dependencies *********
+approx = [ "dep:approx", "ndarray/approx" ]
+
+blas = [ "ndarray/blas" ]
+
+rand = [ "num/rand" ]
+
+rayon = [ "dep:rayon", "ndarray/rayon" ]
+
+serde = [
+    "dep:serde",
+    "dep:serde_derive",
+    "ndarray/serde",
+    "num/serde",
+    "scsys/serde",
+]
+
+tracing = [ "dep:tracing" ]
+
+# ********* [FF] Environments *********
+std = [ "ndarray/std", "num/std", "scsys/std", "serde/std", "strum/std" ]
+
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+doctest = true
+test = true
+
+[build-dependencies]
+
+[dependencies]
+# Shared dependencies
+ndarray = { workspace = true }
+num = { workspace = true }
+scsys = { workspace = true }
+strum = { workspace = true }
+
+# Optional dependencies
+approx = { optional = true, workspace = true }
+rayon = { optional = true, workspace = true }
+serde = { default-features = false, optional = true, workspace = true }
+serde_derive = { optional = true, workspace = true }
+tracing = { optional = true, workspace = true }
+
+[dev-dependencies]
+lazy_static = { workspace = true }
+
+[[test]]
+name = "fft"
+path = "tests/fft.rs"
+required-features = [ "approx", "std" ]

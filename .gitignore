@@ -61,8 +61,6 @@
 **/*.zip
 **/*.zip.*
 
-
-
 ## Rust
 **/debug/
 **/target/
@@ -107,3 +105,8 @@
 
 **/*.whl
 **/*.whl.*
+
+## Operating Systems
+
+### Windows (WSL2)
+**/*:Zone.Identifier
